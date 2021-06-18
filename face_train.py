@@ -27,25 +27,25 @@ FLAGS = easydict.EasyDict({"img_size": 416,
                            
                            "max_size": 100,
                            
-                           "tr_img_path": "D:/[1]DB/[3]detection_DB/FDDB/originalPics",
+                           "tr_img_path": "/content/train",
                            
-                           "tr_txt_path": "D:/[1]DB/[3]detection_DB/FDDB/train_label/train_label",
+                           "tr_txt_path": "/content/label/train_label",
 
                            #"te_img_path": "D:/[1]DB/[3]detection_DB/voc2007/VOCtest_06-Nov-2007/VOCdevkit/VOC2007/JPEGImages",
                            
                            #"te_txt_path": "D:/[1]DB/[3]detection_DB/voc2007/VOCtest_06-Nov-2007/VOCdevkit/VOC2007/xml_to_text",
 
-                           "class_name": "D:/[1]DB/[3]detection_DB/FDDB/train_label/score_label.txt",
+                           "class_name": "/content/label/score_label.txt",
                            
                            "pre_checkpoint": False,
                            
                            "pre_checkpoint_path": "",
                            
-                           "save_checkpoint": "",
+                           "save_checkpoint": "/content/drive/My Drive/detection/face_detection/checkpoint",
                            
-                           "save_sample": "C:/Users/Yuhwan/Pictures/img",
+                           "save_sample": "/content/drive/My Drive/detection/face_detection/sample_images",
                            
-                           "load_weight": "C:/Users/Yuhwan/Downloads/ck/yolov3.tf"})
+                           "load_weight": "/content/drive/My Drive/detection/ck/yolov3.tf"})
 
 optim = tf.keras.optimizers.Adam(FLAGS.lr)
 
@@ -107,7 +107,8 @@ def main():
     #    tf.config.experimental.set_memory_growth(physical_device, True)
    
     model = YoloV3(FLAGS.img_size, 3, masks=yolo_anchor_masks, classes=FLAGS.num_classes)
-    model.trainable = False
+    for layer in model.layers:
+        layer.trainable = False
     x_36 = model.get_layer("conv3_block3_out").output
     x_61 = model.get_layer("conv4_block5_out").output
     x = model.output
@@ -186,19 +187,19 @@ def main():
             if count % 500 == 0:
                 test_sample(model, batch_images, class_name, count)
 
-            #if count % 1000 == 0:
-            #    model_dir = FLAGS.save_checkpoint
+            if count % 1000 == 0:
+               model_dir = FLAGS.save_checkpoint
 
-            #    folder_name = int(count/1000)
-            #    folder_neme_str = '%s/%s' % (model_dir, folder_name)
+               folder_name = int(count/1000)
+               folder_neme_str = '%s/%s' % (model_dir, folder_name)
 
-            #    if not os.path.isdir(folder_neme_str):
-            #        print("make {} folder to save checkpoint".format(folder_name))
-            #        os.makedirs(folder_neme_str)
+               if not os.path.isdir(folder_neme_str):
+                   print("make {} folder to save checkpoint".format(folder_name))
+                   os.makedirs(folder_neme_str)
 
-            #    checkpoint = tf.train.Checkpoint(model=model,optim=optim)
-            #    checkpoint_dir = folder_neme_str + "/" + "YOLO3_{}_steps.ckpt".format(count + 1)
-            #    checkpoint.save(checkpoint_dir)
+               checkpoint = tf.train.Checkpoint(model=model,optim=optim)
+               checkpoint_dir = folder_neme_str + "/" + "YOLO3_{}_steps.ckpt".format(count + 1)
+               checkpoint.save(checkpoint_dir)
 
 
 
