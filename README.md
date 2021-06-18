@@ -8,3 +8,5 @@
 
 ## Epoch 5 (VOC2012 anchors를 사용했을 때)
 ![img ](https://github.com/Kimyuhwanpeter/YOLO_V3_FDDB/blob/main/500_2.jpg)
+
+## 직접 구한 anchor 박스를 사용했을 때
