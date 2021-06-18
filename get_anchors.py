@@ -2,6 +2,7 @@
 import tensorflow as tf
 import numpy as np
 import easydict
+import os
 
 # https://github.com/lars76/kmeans-anchor-boxes/blob/master/example.py
 
@@ -91,13 +92,10 @@ def kmeans(boxes, k, dist=np.median):
 
 def read_label(file, ori_width, ori_height):
 
-    y_out = []
-    box_info = []
-    grid_size = size // 32
-    y_true = []
-    for b in range(batch_size):
+    for b in range(1):
         f = open(tf.compat.as_bytes(file[b].numpy()), 'r')
         box = []
+        box_info = []
         while True:
             line = f.readline()
             if not line: break
@@ -113,7 +111,9 @@ def read_label(file, ori_width, ori_height):
             normalized_xmax = xmax / ori_width[b]
             normalized_ymax = ymax / ori_height[b]
 
-    return [normalized_xmax - normalized_xmin, normalized_ymax - normalized_ymin]
+            box.append([normalized_xmax - normalized_xmin, normalized_ymax - normalized_ymin])
+
+    return box
 
 
 def input_func(img_path, lab_path):
@@ -140,19 +140,46 @@ tr_generator = tr_generator.batch(1)
 tr_generator = tr_generator.prefetch(tf.data.experimental.AUTOTUNE)
 
 tr_iter = iter(tr_generator)
-tr_idx = len(tr_img) // FLAGS.batch_size
+tr_idx = len(tr_img) // 1
 
-box = []
+box_info = []
 for step in range(tr_idx):
     batch_images, batch_labels, original_image = next(tr_iter)
     width = original_image[1]
     height = original_image[0]
     width = np.array(width, dtype=np.float32)
     height = np.array(height, dtype=np.float32)
-    box.append(read_label(file, width, height))
 
-out = kmeans(box, k=9)
-print("Accuracy: {:.2f}%".format(avg_iou(box, out) * 100))
+    f = open(tf.compat.as_bytes(batch_labels[0].numpy()), 'r')
+    box = []
+    while True:
+        line = f.readline()
+        if not line: break
+        line = line.split('\n')[0]
+
+        xmin = float(float(line.split(' ')[0]))
+        ymin = float(float(line.split(' ')[1]))
+        xmax = float(float(line.split(' ')[2]))
+        ymax = float(float(line.split(' ')[3]))
+
+        normalized_xmin = xmin / width[0]
+        normalized_ymin = ymin / height[0]
+        normalized_xmax = xmax / width[0]
+        normalized_ymax = ymax / height[0]
+
+        box.append([normalized_xmax - normalized_xmin, normalized_ymax - normalized_ymin])
+
+
+    for i in range(len(box)):
+        box_info.append(box[i])
+
+    if step % 100 == 0:
+        print(step)
+
+box_info = np.array(box_info, dtype=np.float32)
+out = kmeans(box_info, k=9)
+print(out)
+print("Accuracy: {:.2f}%".format(avg_iou(box_info, out) * 100))
 print("Boxes:\n {}".format(out))
 
 ratios = np.around(out[:, 0] / out[:, 1], decimals=2).tolist()
