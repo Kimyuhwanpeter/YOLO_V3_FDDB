@@ -10,4 +10,9 @@
 ## Epoch 5 (VOC2012 anchors를 사용했을 때)
 ![img ](https://github.com/Kimyuhwanpeter/YOLO_V3_FDDB/blob/main/500_2.jpg)
 
-## 직접 구한 anchor 박스를 사용했을 때
+## 직접 구한 anchor 박스를 사용했을 때 (직접구한 anchors를 이용했을 때)
+![img2](https://github.com/Kimyuhwanpeter/YOLO_V3_FDDB/blob/main/2500_7.jpg)
+<br/>
+
+
+* 결과적으로는 비슷한것같음
