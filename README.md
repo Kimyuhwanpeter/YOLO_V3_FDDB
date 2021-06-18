@@ -6,4 +6,5 @@
 * 위 anchor로 설정하고 다시 학습을 해야함 (집에서 이어서 진행)
 * 학습 dataset은 약 1,500 장 뿐임
 
-## Epoch 5
+## Epoch 5 (VOC2012 anchors를 사용했을 때)
+![img ](https://github.com/Kimyuhwanpeter/YOLO_V3_FDDB/blob/main/500_2.jpg)
